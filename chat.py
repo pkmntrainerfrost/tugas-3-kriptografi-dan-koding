@@ -311,7 +311,6 @@ class Ui_MainWindow(object):
     def bob_decrypt(self,item):
 
         value = self.listWidget_2.currentRow()
-        print(value)
 
         message = self.messages[value]
 
