@@ -176,7 +176,7 @@ class Ui_MainWindow(object):
 
     def alice_send_file(self):
 
-        nickname = self.lineEdit_2.text()
+        nickname = self.lineEdit.text()
 
         filename = QtWidgets.QFileDialog.getOpenFileName(self.mainwindow,"Pilih file")[0]
         
@@ -218,7 +218,7 @@ class Ui_MainWindow(object):
 
     def bob_send_file(self):
 
-        nickname = self.lineEdit.text()
+        nickname = self.lineEdit_2.text()
 
         filename = QtWidgets.QFileDialog.getOpenFileName(self.mainwindow,"Pilih file")[0]
         
@@ -284,28 +284,31 @@ class Ui_MainWindow(object):
             
             else:
                 
-                if message["type"] == "text":
-                    item.setText(f"[{value}] {self.lineEdit_2.text()} : {rsa.rsaDecryptText(message['data'],self.alice_keys['private'])[:message['length']]}")
-                    item.setToolTip("Pesan telah didekripsi")
-                else:
-                    message_file = self.files[message["data"]]
-                    reply = QtWidgets.QMessageBox.question(self.mainwindow, 'File', 'Simpan file sebagai hasil dekripsi?')
-                    if reply == QtWidgets.QMessageBox.StandardButton.Yes:
-                        filename = QtWidgets.QFileDialog.getSaveFileName(self.mainwindow,"Simpan file",message_file["name"])[0]
-                        if filename == "":
-                            filename = message_file["name"]
-                        contents = rsa.rsaDecryptBytes(message_file["contents"],self.alice_keys["private"])[:message['length']]
-                        os.makedirs(os.path.dirname(filename), exist_ok=True)
-                        with open(filename,"wb+") as file: 
-                            file.write(contents)
-                    if reply == QtWidgets.QMessageBox.StandardButton.No:
-                        filename = QtWidgets.QFileDialog.getSaveFileName(self.mainwindow,"Simpan file",message_file["name"])[0]
-                        if filename == "":
-                            filename = message_file["name"]
-                        contents = message_file["contents"]
-                        os.makedirs(os.path.dirname(filename), exist_ok=True)
-                        with open(filename,"wb+") as file: 
-                            file.write(bytearray(contents,"ascii"))
+                try:
+                    if message["type"] == "text":
+                        item.setText(f"[{value}] {self.lineEdit_2.text()} : {rsa.rsaDecryptText(message['data'],self.alice_keys['private'])[:message['length']]}")
+                        item.setToolTip("Pesan telah didekripsi")
+                    else:
+                        message_file = self.files[message["data"]]
+                        reply = QtWidgets.QMessageBox.question(self.mainwindow, 'File', 'Simpan file sebagai hasil dekripsi?')
+                        if reply == QtWidgets.QMessageBox.StandardButton.Yes:
+                            filename = QtWidgets.QFileDialog.getSaveFileName(self.mainwindow,"Simpan file",message_file["name"])[0]
+                            if filename == "":
+                                filename = message_file["name"]
+                            contents = rsa.rsaDecryptBytes(message_file["contents"],self.alice_keys["private"])[:message['length']]
+                            os.makedirs(os.path.dirname(filename), exist_ok=True)
+                            with open(filename,"wb+") as file: 
+                                file.write(contents)
+                        if reply == QtWidgets.QMessageBox.StandardButton.No:
+                            filename = QtWidgets.QFileDialog.getSaveFileName(self.mainwindow,"Simpan file",message_file["name"])[0]
+                            if filename == "":
+                                filename = message_file["name"]
+                            contents = message_file["contents"]
+                            os.makedirs(os.path.dirname(filename), exist_ok=True)
+                            with open(filename,"wb+") as file: 
+                                file.write(bytearray(contents,"ascii"))
+                except:
+                    pass
 
 
     def bob_decrypt(self,item):
@@ -322,29 +325,32 @@ class Ui_MainWindow(object):
             
             else:
                 
-                if message["type"] == "text":
-                    print(value)
-                    item.setText(f"[{value}] {self.lineEdit.text()} : {rsa.rsaDecryptText(message['data'],self.bob_keys['private'])[:message['length']]}")
-                    item.setToolTip("Pesan telah didekripsi")
-                else:
-                    message_file = self.files[message["data"]]
-                    reply = QtWidgets.QMessageBox.question(self.mainwindow, 'File', 'Simpan file sebagai hasil dekripsi?')
-                    if reply == QtWidgets.QMessageBox.StandardButton.Yes:
-                        filename = QtWidgets.QFileDialog.getSaveFileName(self.mainwindow,"Simpan file",message_file["name"])[0]
-                        if filename == "":
-                            filename = message_file["name"]
-                        contents = rsa.rsaDecryptBytes(message_file["contents"],self.bob_keys["private"])[:message['length']]
-                        os.makedirs(os.path.dirname(filename), exist_ok=True)
-                        with open(filename,"wb+") as file: 
-                            file.write(contents)
-                    if reply == QtWidgets.QMessageBox.StandardButton.No:
-                        filename = QtWidgets.QFileDialog.getSaveFileName(self.mainwindow,"Simpan file",message_file["name"])[0]
-                        contents = message_file["contents"]
-                        if filename == "":
-                            filename = message_file["name"]
-                        os.makedirs(os.path.dirname(filename), exist_ok=True)
-                        with open(filename,"wb+") as file: 
-                            file.write(bytearray(contents,"ascii"))
+                try:
+                    if message["type"] == "text":
+                        print(item.text())
+                        item.setText(f"[{value}] {self.lineEdit.text()} : {rsa.rsaDecryptText(message['data'],self.bob_keys['private'])[:message['length']]}")
+                        item.setToolTip("Pesan telah didekripsi")
+                    else:
+                        message_file = self.files[message["data"]]
+                        reply = QtWidgets.QMessageBox.question(self.mainwindow, 'File', 'Simpan file sebagai hasil dekripsi?')
+                        if reply == QtWidgets.QMessageBox.StandardButton.Yes:
+                            filename = QtWidgets.QFileDialog.getSaveFileName(self.mainwindow,"Simpan file",message_file["name"])[0]
+                            if filename == "":
+                                filename = message_file["name"]
+                            contents = rsa.rsaDecryptBytes(message_file["contents"],self.bob_keys["private"])[:message['length']]
+                            os.makedirs(os.path.dirname(filename), exist_ok=True)
+                            with open(filename,"wb+") as file: 
+                                file.write(contents)
+                        if reply == QtWidgets.QMessageBox.StandardButton.No:
+                            filename = QtWidgets.QFileDialog.getSaveFileName(self.mainwindow,"Simpan file",message_file["name"])[0]
+                            contents = message_file["contents"]
+                            if filename == "":
+                                filename = message_file["name"]
+                            os.makedirs(os.path.dirname(filename), exist_ok=True)
+                            with open(filename,"wb+") as file: 
+                                file.write(bytearray(contents,"ascii"))
+                except:
+                    pass
 
     def alice_load_key(self):
         
@@ -372,6 +378,8 @@ class Ui_MainWindow(object):
                 valid = rsa.rsaValid(x["p"],x["q"],x["e"])
                 if valid:
                     self.alice_keys = {"public" : {"e" : x["e"],"n" : x["n"]}, "private" : {"d" : x["d"],"n": x["n"]}}
+                    self.pushButton_7.setDisabled(False)
+                    self.pushButton_8.setDisabled(False)
                     msg = QtWidgets.QMessageBox.information(self.mainwindow,f"Kunci RSA Berhasil Dibaca!",f"Kunci RSA berhasil dibaca dari file {filename}!")
                 else:
                     msg = QtWidgets.QMessageBox.information(self.mainwindow,f"Kunci RSA Gagal Dibaca!",f"Kunci RSA tidak valid!")
@@ -407,6 +415,8 @@ class Ui_MainWindow(object):
                 valid = rsa.rsaValid(x["p"],x["q"],x["e"])
                 if valid:
                     self.bob_keys = {"public" : {"e" : x["e"],"n" : x["n"]}, "private" : {"d" : x["d"],"n": x["n"]}}
+                    self.pushButton_5.setDisabled(False)
+                    self.pushButton_6.setDisabled(False)
                     msg = QtWidgets.QMessageBox.information(self.mainwindow,f"Kunci RSA Berhasil Dibaca!",f"Kunci RSA berhasil dibaca dari file {filename}!")
                 else:
                     msg = QtWidgets.QMessageBox.information(self.mainwindow,f"Kunci RSA Gagal Dibaca!",f"Kunci RSA tidak valid!")
