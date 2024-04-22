@@ -10,9 +10,6 @@ from PyQt6 import QtCore, QtGui, QtWidgets
 import rsa
 import os
 
-def message_box(self,title,data):
-    message = QtWidgets.QMessageBox(self)
-    message.setWindowTitle()
 
 def update_list(self,listWidget,data,encrypted):
     x = QtWidgets.QListWidgetItem()
@@ -49,6 +46,7 @@ class Ui_MainWindow(object):
         self.pushButton = QtWidgets.QPushButton(parent=self.frame)
         self.pushButton.setGeometry(QtCore.QRect(300, 10, 75, 24))
         self.pushButton.setObjectName("pushButton")
+        self.pushButton.clicked.connect(self.alice_load_key)
         self.pushButton_2 = QtWidgets.QPushButton(parent=self.frame)
         self.pushButton_2.setGeometry(QtCore.QRect(220, 10, 75, 24))
         self.pushButton_2.setObjectName("pushButton_2")
@@ -68,6 +66,7 @@ class Ui_MainWindow(object):
         self.pushButton_4 = QtWidgets.QPushButton(parent=self.frame_2)
         self.pushButton_4.setGeometry(QtCore.QRect(300, 10, 75, 24))
         self.pushButton_4.setObjectName("pushButton_4")
+        self.pushButton_4.clicked.connect(self.bob_load_key)
         self.lineEdit_2 = QtWidgets.QLineEdit(parent=self.frame_2)
         self.lineEdit_2.setGeometry(QtCore.QRect(10, 10, 201, 21))
         self.lineEdit_2.setObjectName("lineEdit_2")
@@ -123,6 +122,7 @@ class Ui_MainWindow(object):
         self.pushButton_8 = QtWidgets.QPushButton(parent=self.frame_6)
         self.pushButton_8.setGeometry(QtCore.QRect(300, 90, 75, 24))
         self.pushButton_8.setObjectName("pushButton_8")
+        self.pushButton_8.clicked.connect(self.bob_send_file)
         self.pushButton_8.setDisabled(True)
         self.line = QtWidgets.QFrame(parent=self.centralwidget)
         self.line.setGeometry(QtCore.QRect(390, -20, 20, 611))
@@ -146,7 +146,7 @@ class Ui_MainWindow(object):
 
     def retranslateUi(self, MainWindow):
         _translate = QtCore.QCoreApplication.translate
-        self.mainwindow.setWindowTitle(_translate("MainWindow", "MainWindow"))
+        self.mainwindow.setWindowTitle(_translate("MainWindow", "Simulator Aplikasi Percakapan dengan Enkripsi Berbasis Algoritma RSA"))
         self.pushButton.setText(_translate("MainWindow", "Load Key"))
         self.pushButton_2.setText(_translate("MainWindow", "New Key"))
         self.lineEdit.setText(_translate("MainWindow", "Alice"))
@@ -209,7 +209,7 @@ class Ui_MainWindow(object):
         
         encrypted_message = rsa.rsaEncryptText(rmessage + "   ",self.alice_keys["public"])
 
-        self.textEdit.clear()
+        self.textEdit_2.clear()
 
         update_list(self,self.listWidget,f"{nickname} : {encrypted_message}", True)
         update_list(self,self.listWidget_2,f"You : {rmessage}", False)
@@ -255,7 +255,7 @@ class Ui_MainWindow(object):
         self.pushButton_7.setDisabled(False)
         self.pushButton_8.setDisabled(False)
 
-        msg = QtWidgets.QMessageBox.information(self.mainwindow,f"RSA Key Generated",f"Kunci RSA baru telah dibangkitkan untuk {self.lineEdit.text()}! Kunci telah disimpan sebagai {filename}.")
+        msg = QtWidgets.QMessageBox.information(self.mainwindow,f"Kunci RSA Berhasil Dibangkitkan!",f"Kunci RSA baru telah dibangkitkan untuk {self.lineEdit.text()}! Kunci telah disimpan sebagai {filename}.")
 
     def bob_generate_key(self):
 
@@ -268,7 +268,7 @@ class Ui_MainWindow(object):
         self.pushButton_5.setDisabled(False)
         self.pushButton_6.setDisabled(False)
 
-        msg = QtWidgets.QMessageBox.information(self.mainwindow,f"RSA Key Generated",f"Kunci RSA baru telah dibangkitkan untuk {self.lineEdit_2.text()}! Kunci telah disimpan sebagai {filename}.")
+        msg = QtWidgets.QMessageBox.information(self.mainwindow,f"Kunci RSA Berhasil Dibangkitkan",f"Kunci RSA baru telah dibangkitkan untuk {self.lineEdit_2.text()}! Kunci telah disimpan sebagai {filename}.")
 
     def alice_decrypt(self,item):
 
@@ -302,10 +302,10 @@ class Ui_MainWindow(object):
                         filename = QtWidgets.QFileDialog.getSaveFileName(self.mainwindow,"Simpan file",message_file["name"])[0]
                         if filename == "":
                             filename = message_file["name"]
-                        contents = message["contents"]
+                        contents = message_file["contents"]
                         os.makedirs(os.path.dirname(filename), exist_ok=True)
                         with open(filename,"wb+") as file: 
-                            file.write(bytearray(contents,"utf-8"))
+                            file.write(bytearray(contents,"ascii"))
 
 
     def bob_decrypt(self,item):
@@ -339,12 +339,83 @@ class Ui_MainWindow(object):
                             file.write(contents)
                     if reply == QtWidgets.QMessageBox.StandardButton.No:
                         filename = QtWidgets.QFileDialog.getSaveFileName(self.mainwindow,"Simpan file",message_file["name"])[0]
-                        contents = message["contents"]
+                        contents = message_file["contents"]
                         if filename == "":
                             filename = message_file["name"]
                         os.makedirs(os.path.dirname(filename), exist_ok=True)
                         with open(filename,"wb+") as file: 
-                            file.write(bytearray(contents,"utf-8"))
+                            file.write(bytearray(contents,"ascii"))
+
+    def alice_load_key(self):
+        
+        filename = QtWidgets.QFileDialog.getOpenFileName(self.mainwindow,"Pilih file")[0]
+
+        try: 
+            
+            x = {}
+
+            with open(filename,"r") as file:   
+
+                params = file.readlines()
+
+            if len(params) != 5:
+                raise ValueError("file gk valid")
+            else:
+                for param in params:
+                    if "=" in param:
+                        key, value = param.split("=")
+                        key = key.strip()
+                        value = int(value.strip())
+                        x[key] = value
+                    else:
+                        raise ValueError("file gk valid")
+                valid = rsa.rsaValid(x["p"],x["q"],x["e"])
+                if valid:
+                    self.alice_keys = {"public" : {"e" : x["e"],"n" : x["n"]}, "private" : {"d" : x["d"],"n": x["n"]}}
+                    msg = QtWidgets.QMessageBox.information(self.mainwindow,f"Kunci RSA Berhasil Dibaca!",f"Kunci RSA berhasil dibaca dari file {filename}!")
+                else:
+                    msg = QtWidgets.QMessageBox.information(self.mainwindow,f"Kunci RSA Gagal Dibaca!",f"Kunci RSA tidak valid!")
+                
+        
+        except:
+
+            msg = QtWidgets.QMessageBox.information(self.mainwindow,f"Kunci RSA Gagal Dibaca!",f"Kunci RSA tidak valid!")
+
+    def bob_load_key(self):
+        
+        filename = QtWidgets.QFileDialog.getOpenFileName(self.mainwindow,"Pilih file")[0]
+
+        try: 
+            
+            x = {}
+
+            with open(filename,"r") as file:   
+
+                params = file.readlines()
+
+            if len(params) != 5:
+                raise ValueError("file gk valid")
+            else:
+                for param in params:
+                    if "=" in param:
+                        key, value = param.split("=")
+                        key = key.strip()
+                        value = int(value.strip())
+                        x[key] = value
+                    else:
+                        raise ValueError("file gk valid")
+                valid = rsa.rsaValid(x["p"],x["q"],x["e"])
+                if valid:
+                    self.bob_keys = {"public" : {"e" : x["e"],"n" : x["n"]}, "private" : {"d" : x["d"],"n": x["n"]}}
+                    msg = QtWidgets.QMessageBox.information(self.mainwindow,f"Kunci RSA Berhasil Dibaca!",f"Kunci RSA berhasil dibaca dari file {filename}!")
+                else:
+                    msg = QtWidgets.QMessageBox.information(self.mainwindow,f"Kunci RSA Gagal Dibaca!",f"Kunci RSA tidak valid!")
+                
+        
+        except:
+
+            msg = QtWidgets.QMessageBox.information(self.mainwindow,f"Loading failed",f"Kunci RSA tidak valid!")
+
 
 if __name__ == "__main__":
     import sys

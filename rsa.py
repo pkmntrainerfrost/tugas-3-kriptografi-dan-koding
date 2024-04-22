@@ -56,6 +56,33 @@ def rsaGenerateKeyPair( p : int = 0, q : int = 0, e : int = 0):
 
     return {"primes" : {"p" : p, "q" :q},"key" : {"public" : {"e" : e,"n" : n}, "private" : {"d" : d,"n": n}}}
 
+# Cek valid
+def rsaValid(p,q,e):
+
+    # Cek prima bila dimasukkan secara manual
+    try:
+        if (p != 0 and not (sympy.isprime(p))) or (q != 0 and not (sympy.isprime(q))):
+            raise ValueError("P dan Q harus berupa bilangan prima!")
+        
+        # Cek ketidaksamaan P dan Q bila dimasukkan secara manual
+        if p == q and p != 0:
+            raise ValueError("P dan Q harus berbeda!")
+        
+        if p != 0 and q != 0:
+            n = p * q
+            if n < 256:
+                raise ValueError("P * Q terlalu kecil!")
+            
+        n = p * q
+        t = (p - 1) * (q - 1)
+        
+        if e != 0 and math.gcd(e,t) != 1:
+            raise ValueError("Nilai E yang dimasukkan tidak koprima dengan totient!")
+        return True
+    except:
+        return False
+
+
 # Enkripsi
 def rsaEncrypt(m : int, public_key : dict):
 
