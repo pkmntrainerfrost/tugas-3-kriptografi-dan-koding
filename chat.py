@@ -354,7 +354,7 @@ class Ui_MainWindow(object):
 
     def alice_load_key(self):
         
-        filename = QtWidgets.QFileDialog.getOpenFileName(self.mainwindow,"Pilih file")[0]
+        filename = QtWidgets.QFileDialog.getOpenFileName(self.mainwindow,"Pilih file",filter="pri(*.pri)")[0]
 
         try: 
             

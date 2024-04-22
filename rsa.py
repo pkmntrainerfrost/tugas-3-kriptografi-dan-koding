@@ -201,11 +201,11 @@ def rsaSaveKeyPair(name : str, key : dict):
 
     timestamp = str(time.time()).replace(".","")
 
-    filename = f"keys/{name}_{timestamp}.txt"
+    filenamepri = f"keys/{name}_{timestamp}.pri"
 
-    os.makedirs(os.path.dirname(filename), exist_ok=True)
+    os.makedirs(os.path.dirname(filenamepri), exist_ok=True)
     
-    with open(filename,"w+") as file:   
+    with open(filenamepri,"w+") as file:   
 
         p = key["primes"]["p"]
         q = key["primes"]["q"]
@@ -218,8 +218,20 @@ def rsaSaveKeyPair(name : str, key : dict):
         file.write(f'n = {n}\n')
         file.write(f'e = {e}\n')
         file.write(f'd = {d}\n')
+    
+    filenamepub = f"keys/{name}_{timestamp}.pub"
 
-    return filename
+    os.makedirs(os.path.dirname(filenamepri), exist_ok=True)
+    
+    with open(filenamepub,"w+") as file:   
+
+        n = key["key"]["public"]["n"]
+        e = key["key"]["public"]["e"]
+
+        file.write(f'n = {n}\n')
+        file.write(f'e = {e}\n')
+
+    return filenamepri
 
 # Driver
 if __name__ == "__main__":
